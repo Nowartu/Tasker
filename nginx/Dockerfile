@@ -1,4 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="artur"
-
-ENTRYPOINT ["top", "-b"]
+FROM nginx:latest
+RUN rm /var/log/nginx/*
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
