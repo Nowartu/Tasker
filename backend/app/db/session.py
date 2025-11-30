@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from ..core.config import DATABASE_URL, connect_args
+from core.config import DATABASE_URL, connect_args
 from contextlib import contextmanager
 
 
