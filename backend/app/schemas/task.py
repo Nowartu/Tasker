@@ -13,15 +13,15 @@ class CreateTask(BaseModel):
 
 class TaskSimple(CreateTask):
     id: int
+    done: bool
 
 
 class TaskDetails(TaskSimple):
     created_at: datetime
     created_by: str
 
-    done: bool
-    done_at: datetime
-    done_by: str
+    done_at: datetime | None = None
+    done_by: str | None = None
 
     comments: List[Comment]
 
@@ -32,3 +32,10 @@ class CompleteTask(BaseModel):
 
 class DeleteTask(BaseModel):
     id: int
+
+
+class UpdateTask(BaseModel):
+    id: int
+
+    done: bool
+    done_by: str
