@@ -13,5 +13,6 @@ class Comment(CreateComment):
 
 class CommentDetails(Comment):
     task_title: str
-    created_at = datetime
-    created_by = str
+    description: str
+    created_at: datetime
+    created_by: str
