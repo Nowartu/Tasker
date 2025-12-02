@@ -19,4 +19,4 @@ class Task(Base):
     title = Column(String(250), nullable=False)
     description = Column(Text)
 
-    comments = relationship('comments.id', back_populates='task')
+    comments = relationship('Comment', back_populates='task')
