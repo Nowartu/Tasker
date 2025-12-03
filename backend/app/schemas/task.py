@@ -38,4 +38,3 @@ class UpdateTask(BaseModel):
     id: int
 
     done: bool
-    done_by: str
