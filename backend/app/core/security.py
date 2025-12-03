@@ -1,9 +1,10 @@
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
+from core.config import ROOT_PATH
 
 password_hash = PasswordHash.recommended()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/users/token/")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{ROOT_PATH}/v1/users/token/")
 
 
 def verify_password(plain_password, hashed_password):
