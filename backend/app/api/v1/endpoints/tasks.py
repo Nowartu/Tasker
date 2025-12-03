@@ -4,6 +4,7 @@ from schemas.task import CreateTask, TaskSimple, TaskDetails, UpdateTask
 from typing import List, Annotated
 from sqlalchemy.orm import Session
 from services import tasks_service
+from services import utils
 
 api_router = APIRouter(
     prefix="/tasks",
@@ -11,12 +12,12 @@ api_router = APIRouter(
 )
 
 @api_router.get("/", response_model=List[TaskSimple])
-def get_tasks(db: Session = Depends(get_db), only_undone: bool = True):
+def get_tasks(db: Session = Depends(get_db), only_undone: bool = True, current_user = Depends(utils.get_current_user)):
     return tasks_service.get_tasks(db, only_undone)
 
 
 @api_router.get("/{task_id}/", response_model=TaskDetails)
-def get_task(task_id: int, db: Session = Depends(get_db)):
+def get_task(task_id: int, db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     task = tasks_service.get_task_details(db, task_id)
     if task is None:
         raise HTTPException(404, "Task not found.")
@@ -25,13 +26,13 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
 
 
 @api_router.post("/")
-def create_task(task: Annotated[CreateTask, Body], db: Session = Depends(get_db)):
+def create_task(task: Annotated[CreateTask, Body], db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     task_id = tasks_service.create_task(db, task)
     return task_id
 
 
 @api_router.put("/{task_id}")
-def update_task(task: Annotated[UpdateTask, Body], db: Session = Depends(get_db)):
+def update_task(task: Annotated[UpdateTask, Body], db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     if tasks_service.update_task(db, task):
         return "OK"
     else:
@@ -39,7 +40,7 @@ def update_task(task: Annotated[UpdateTask, Body], db: Session = Depends(get_db)
 
 
 @api_router.delete("/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db)):
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     if tasks_service.delete_task(db, task_id):
         return "OK"
     else:

@@ -4,6 +4,7 @@ from typing import List, Annotated
 from sqlalchemy.orm import Session
 from db.session import get_db
 from services import comments_services
+from services import utils
 
 api_router = APIRouter(
     prefix="/comments",
@@ -11,12 +12,12 @@ api_router = APIRouter(
 )
 
 @api_router.get("/", response_model=List[CommentDetails])
-def get_comments(db: Session = Depends(get_db)):
+def get_comments(db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     return comments_services.get_comments(db)
 
 
 @api_router.get("/{comment_id}/", response_model=CommentDetails)
-def get_comment(comment_id: int, db: Session = Depends(get_db)):
+def get_comment(comment_id: int, db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     comment = comments_services.get_comment_details(db, comment_id)
     if comment is None:
         raise HTTPException(404, "Comment not found.")
@@ -25,7 +26,7 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
 
 
 @api_router.post("/")
-def create_comment(comment: Annotated[CreateComment, Body()], db: Session = Depends(get_db)):
+def create_comment(comment: Annotated[CreateComment, Body()], db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     comment_id = comments_services.create_comment(db, comment)
     if comment_id is not None:
         return comment_id
@@ -33,7 +34,7 @@ def create_comment(comment: Annotated[CreateComment, Body()], db: Session = Depe
         return HTTPException(404, "Task does not exist")
 
 @api_router.delete("/{comment_id}/")
-def create_comment(comment_id: int, db: Session = Depends(get_db)):
+def create_comment(comment_id: int, db: Session = Depends(get_db), current_user = Depends(utils.get_current_user)):
     if comments_services.delete_comment(db, comment_id):
         return "OK"
     else:
