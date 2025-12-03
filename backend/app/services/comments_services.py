@@ -5,6 +5,11 @@ from schemas.comment import CreateComment
 
 
 def get_comments(db: Session):
+    """
+    Returns all comments in database.
+    :param db: database Session
+    :return: List with comments.
+    """
     return [{
         "id": comment.id,
         "task_id": comment.task.id,
@@ -16,8 +21,14 @@ def get_comments(db: Session):
     } for comment in db.query(Comment).join(Task).all()]
 
 
-def get_comment_details(db: Session, task_id: int):
-    comment = db.query(Comment).join(Task).filter(Comment.id == task_id).first()
+def get_comment_details(db: Session, comment_id: int):
+    """
+    Returns details of a comment.
+    :param db: database Session
+    :param comment_id: Id of a comment.
+    :return: Dictionary with data of a comment or None if not found.
+    """
+    comment = db.query(Comment).join(Task).filter(Comment.id == comment_id).first()
     if comment is not None:
         return {
             "id": comment.id,
@@ -33,9 +44,19 @@ def get_comment_details(db: Session, task_id: int):
 
 
 def create_comment(db: Session, comment_data: CreateComment, user: str = "unknown") -> int | None:
+    """
+    Creates new comment.
+    :param db: database Session
+    :param comment_data: Dict with comment info.
+    :param user: User who is adding comment.
+    :return: Id of new comment or None if task not exists.
+    """
+
+    # Get task from database and check if it exists.
     task = db.query(Task).filter(Task.id == comment_data.task_id).first()
     if task is None:
         return None
+
     comment = Comment(
         task_id=comment_data.task_id,
         created_by=user,
@@ -48,6 +69,12 @@ def create_comment(db: Session, comment_data: CreateComment, user: str = "unknow
 
 
 def delete_comment(db: Session, comment_id: int) -> bool:
+    """
+    Deletes comment.
+    :param db: database Session
+    :param comment_id: Id of a comment to be deleted
+    :return: Bool based on result
+    """
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if comment is not None:
         db.delete(comment)
