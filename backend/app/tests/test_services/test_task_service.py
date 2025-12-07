@@ -1,4 +1,3 @@
-import pytest
 from services.tasks_service import (
     get_tasks,
     get_task_details,
