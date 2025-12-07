@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from models.comment import Comment
 from models.task import Task
 from schemas.comment import CreateComment
+from sqlalchemy import select
 
 
 def get_comments(db: Session):
@@ -10,6 +11,7 @@ def get_comments(db: Session):
     :param db: database Session
     :return: List with comments.
     """
+    stmt = select(Comment).join(Task)
     return [{
         "id": comment.id,
         "task_id": comment.task.id,
@@ -18,7 +20,7 @@ def get_comments(db: Session):
         "description": comment.description,
         "created_at": comment.created_at,
         "created_by": comment.created_by
-    } for comment in db.query(Comment).join(Task).all()]
+    } for comment in db.execute(stmt).scalars().all()]
 
 
 def get_comment_details(db: Session, comment_id: int):
@@ -28,7 +30,8 @@ def get_comment_details(db: Session, comment_id: int):
     :param comment_id: Id of a comment.
     :return: Dictionary with data of a comment or None if not found.
     """
-    comment = db.query(Comment).join(Task).filter(Comment.id == comment_id).first()
+    stmt = select(Comment).join(Task).where(Comment.id == comment_id)
+    comment = db.execute(stmt).scalar_one_or_none()
     if comment is not None:
         return {
             "id": comment.id,
@@ -53,7 +56,7 @@ def create_comment(db: Session, comment_data: CreateComment, user: str = "unknow
     """
 
     # Get task from database and check if it exists.
-    task = db.query(Task).filter(Task.id == comment_data.task_id).first()
+    task = db.execute(select(Task).where(Task.id == comment_data.task_id)).scalar_one_or_none()
     if task is None:
         return None
 
@@ -75,7 +78,7 @@ def delete_comment(db: Session, comment_id: int) -> bool:
     :param comment_id: Id of a comment to be deleted
     :return: Bool based on result
     """
-    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    comment = db.execute(select(Comment).where(Comment.id == comment_id)).scalar_one_or_none()
     if comment is not None:
         db.delete(comment)
         db.commit()

@@ -7,7 +7,7 @@ from schemas.user import CreateUser
 from services.users_services import create_user
 
 
-def init_database():
+async def init_database():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     create_user(db, CreateUser(login="admin", password="admin"))
