@@ -3,6 +3,8 @@ services:
     build:
       context: backend/app
       dockerfile: Dockerfile
+    expose:
+      - 8000
   nginx:
     build:
       context: nginx
@@ -19,16 +21,18 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
+    expose:
+      - 9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
   kibana:
     image: kibana:9.2.1
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
+      - SERVER_BASEPATH=/kibana
+      - SERVER_REWRITEBASEPATH=false
+    expose:
+      - 5601
     depends_on:
       - elasticsearch
   filebeat:
