@@ -1,2 +1,5 @@
 .idea
 backend/app/.venv
+__pycache__
+test_database.db
+prod_database.db
