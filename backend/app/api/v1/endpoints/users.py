@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from db.session import get_db
+from backend.app.db.session import get_db
 from schemas.user import UpdateUser
 from services import users_services
-from services import utils
+from backend.app.services import utils
 from schemas import user
 from typing import List
 
@@ -54,6 +54,12 @@ def delete_user(user_id: int, db = Depends(get_db), current_user = Depends(utils
 @api_router.post("/token/")
 def login_user(form_data=Depends(OAuth2PasswordRequestForm), db=Depends(get_db)):
     user = users_services.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     token = users_services.create_access_token(
         data={
             "sub": user.login
