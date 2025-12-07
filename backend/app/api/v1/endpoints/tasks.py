@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends, Body
-from db.session import get_db
+from backend.app.db.session import get_db
 from schemas.task import CreateTask, TaskSimple, TaskDetails, UpdateTask
 from typing import List, Annotated
 from sqlalchemy.orm import Session
 from services import tasks_service
-from services import utils
+from backend.app.services import utils
 
 api_router = APIRouter(
     prefix="/tasks",

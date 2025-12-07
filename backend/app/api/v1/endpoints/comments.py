@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException, Body, Depends
 from schemas.comment import CreateComment, CommentDetails
 from typing import List, Annotated
 from sqlalchemy.orm import Session
-from db.session import get_db
+from backend.app.db.session import get_db
 from services import comments_services
-from services import utils
+from backend.app.services import utils
 
 api_router = APIRouter(
     prefix="/comments",
