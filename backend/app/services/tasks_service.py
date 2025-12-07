@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy.orm import Session
 from models.task import Task
 from schemas.task import CreateTask, UpdateTask
+from sqlalchemy import select
 
 
 def get_tasks(db: Session, only_undone):
@@ -12,10 +13,10 @@ def get_tasks(db: Session, only_undone):
     :param only_undone: Whether return only undone tasks
     :return: List of tasks.
     """
-    results = db.query(Task)
+    stmt = select(Task)
     if only_undone:
-        results = results.filter(Task.done == False)
-    return results.all()
+        stmt = stmt.where(Task.done == False)
+    return db.execute(stmt).scalars().all()
 
 
 def get_task_details(db: Session, task_id: int):
@@ -25,7 +26,7 @@ def get_task_details(db: Session, task_id: int):
     :param task_id: Id of a task
     :return: Dict with data of task
     """
-    return db.query(Task).filter(Task.id == task_id).first()
+    return db.execute(select(Task).where(Task.id == task_id)).scalar_one_or_none()
 
 
 def create_task(db: Session, task_data: CreateTask, user: str = "unknown") -> int:
@@ -54,7 +55,7 @@ def delete_task(db: Session, task_id: int) -> bool:
     :param task_id: Id of a task to be deleted
     :return: Bool based on result
     """
-    task = db.query(Task).filter(Task.id == task_id).first()
+    task = db.execute(select(Task).where(Task.id == task_id)).scalar_one_or_none()
     if task is not None:
         db.delete(task)
         db.commit()
@@ -71,7 +72,7 @@ def update_task(db: Session, task_data: UpdateTask, user: str = "unknown") -> bo
     :param user: User who is performing changes
     :return: Bool based on result
     """
-    task = db.query(Task).filter(Task.id == task_data.id).first()
+    task = db.execute(select(Task).where(Task.id == task_data.id)).scalar_one_or_none()
     if task is not None:
         task.done = task_data.done
         task.done_at = datetime.datetime.now()

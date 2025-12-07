@@ -6,19 +6,20 @@ from core.security import verify_password, password_hash
 from core.config import SECRET_KEY, ALGORITHM
 from datetime import datetime, timedelta
 import jwt
+from sqlalchemy import select
 
 
 def get_users(db: Session):
-    return db.query(User).all()
+    return db.execute(select(User)).scalars().all()
 
 
 def get_user_details(db: Session, username: str):
-    user = db.query(User).filter(User.login == username).first()
+    user = db.execute(select(User).where(User.login == username)).scalar_one_or_none()
     return user
 
 
 def create_user(db: Session, user_data: CreateUser):
-    if db.query(User).filter(User.login == user_data.login).first() is None:
+    if db.execute(select(User).where(User.login == user_data.login)).scalar_one_or_none() is None:
         user = User(login=user_data.login, password=password_hash.hash(user_data.password))
         db.add(user)
         db.commit()
@@ -29,7 +30,7 @@ def create_user(db: Session, user_data: CreateUser):
 
 
 def update_user(db: Session, user_data: UpdateUser):
-    user = db.query(User).filter(User.login == user_data.login).first()
+    user = db.execute(select(User).where(User.login == user_data.login)).scalar_one_or_none()
     if user is None:
         return False
     else:
@@ -39,7 +40,7 @@ def update_user(db: Session, user_data: UpdateUser):
 
 
 def delete_user(db: Session, user_id):
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is not None:
         db.delete(user)
         db.commit()
